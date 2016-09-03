@@ -47,5 +47,33 @@ states <- as.data.frame(apply(states,2,function (x) gsub("[^0-9A-Za-z///' ]", ""
 
 words <- c('war','elections','god','crisis','pretoleum','sport','holiday')
 
+#words <- paste(words,collapse="+")
+
 ----#search tweets----
 
+mybiglist <- list()
+for(i in 1:length(words)){
+  a <- searchTwitter(words[i], n=1000,geocode = '-34,-64,40000km', since = as.character(date_since),until = as.character(date_until))
+  mybiglist <- append(mybiglist,a)
+}
+
+
+---#Extract text content of all the tweets----
+
+#Extract text content of all the tweets
+tweetTxt = sapply(mybiglist, function(x) x$getText())
+tweetTxt <- iconv(tweetTxt,to="utf-8")
+#In tm package, the documents are managed by a structure called Corpus
+myCorpus = Corpus(VectorSource(tweetTxt))
+#Create a term-document matrix from a corpus
+tdm = TermDocumentMatrix(myCorpus,control = list(removePunctuation = TRUE,stopwords = c(words, stopwords("english")), removeNumbers = TRUE, tolower = TRUE))
+
+#Convert as matrix
+m = as.matrix(tdm)
+
+#Get word counts in decreasing order
+word_freqs = sort(rowSums(m), decreasing=TRUE)
+
+#Create data frame with words and their frequencies
+dm = data.frame(word=names(word_freqs), freq=word_freqs)
+dm[dm$word %in% words,]
