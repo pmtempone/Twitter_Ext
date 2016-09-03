@@ -59,9 +59,7 @@ word_freqs = sort(rowSums(m), decreasing=TRUE)
 
 #Create data frame with words and their frequencies
 dm = data.frame(word=names(word_freqs), freq=word_freqs)
-
-#Plot wordcloud
-wordcloud(dm$word, dm$freq, random.order=FALSE, colors=brewer.pal(8, "Dark2"))
+dm[dm$word %in% words,]
 
 
 # Pasos para nube macro
